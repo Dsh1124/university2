@@ -1,0 +1,73 @@
+import random
+
+class SeaBattle:
+    """Класс для управления игрой 'Морской бой'."""
+    def __init__(self, size=5, ships=3):
+        self.size = size
+        self.ships = ships
+        self.player_field = [[0] * size for _ in range(size)]
+        self.display_field = [[0] * size for _ in range(size)]
+        self.place_ships()
+
+    def place_ships(self):
+        """Размещает корабли на поле случайным образом."""
+        placed_ships = 0
+        while placed_ships < self.ships:
+            x, y = random.randint(0, self.size - 1), random.randint(0, self.size - 1)
+            if self.player_field[x][y] == 0:
+                self.player_field[x][y] = 1
+                placed_ships += 1
+
+    def display_fields(self):
+        """Отображает текущее состояние игрового поля и поля с выстрелами."""
+        print("Игровое поле (скрытое):")
+        for row in self.player_field:
+            print(" ".join(str(cell) for cell in row))
+
+        print("\nПоле игрока (видимое):")
+        for row in self.display_field:
+            print(" ".join("X" if cell == -1 else "O" if cell == 1 else "~" for cell in row))
+
+    def shoot(self, x, y):
+        """Обрабатывает выстрел игрока."""
+        if not (0 <= x < self.size and 0 <= y < self.size):
+            print("Координаты за пределами поля.")
+            return False
+
+        if self.display_field[x][y] != 0:
+            print("Вы уже стреляли в эту клетку.")
+            return False
+
+        if self.player_field[x][y] == 1:
+            print("Попадание!")
+            self.display_field[x][y] = 1
+            self.player_field[x][y] = 0  # Убрать корабль после попадания
+        else:
+            print("Мимо!")
+            self.display_field[x][y] = -1
+        return True
+
+    def is_game_over(self):
+        """Проверяет, остались ли корабли на поле."""
+        for row in self.player_field:
+            if 1 in row:
+                return False
+        return True
+
+def main():
+    game = SeaBattle()
+    print("Добро пожаловать в игру 'Морской бой'!")
+
+    while not game.is_game_over():
+        game.display_fields()
+        try:
+            x, y = map(int, input("Введите координаты для выстрела (x y): ").split())
+            game.shoot(x, y)
+        except ValueError:
+            print("Некорректный ввод. Введите два числа через пробел.")
+
+    print("\nПоздравляем, вы уничтожили все корабли!")
+    game.display_fields()
+
+if __name__ == "__main__":
+    main()
